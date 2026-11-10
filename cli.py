@@ -1,3 +1,4 @@
+# Author: Durgesh-0001 | CLI Tooling
 """
 Panorama Reconstruction Command-Line Interface (CLI)
 ====================================================
