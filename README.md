@@ -44,6 +44,7 @@ flowchart TD
 ## 📂 Repository Structure
 
 ```
+
 panorama-stitching/
 ├── panorama/                         # Core Python package
 │   ├── __init__.py                   # Package exports
