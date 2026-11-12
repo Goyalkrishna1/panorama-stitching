@@ -1,3 +1,4 @@
+# Author: Goyalkrishna1 | Streamlit Studio UI
 """
 Interactive Web Application for Panorama Reconstruction & Image Stitching
 =========================================================================
