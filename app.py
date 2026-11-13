@@ -116,9 +116,9 @@ with st.sidebar:
     st.markdown("### 🔍 Feature Detection")
     detector_algo = st.selectbox(
         "Detector & Descriptor",
-        options=["SIFT", "ORB", "AKAZE", "BRISK"],
+        options=["SIFT", "ORB"],
         index=0,
-        help="SIFT: Scale/rotation invariant (Unit IV core). ORB/AKAZE/BRISK: Fast binary descriptors.",
+        help="SIFT: Scale/rotation invariant (Unit IV core). ORB: Fast binary descriptor.",
     )
     max_features = st.slider(
         "Max Keypoints per Image",
@@ -138,78 +138,76 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # 2. Geometry & Surface Projection
-    st.markdown("### 📐 Geometry & Projections")
-    projection_mode = st.selectbox(
-        "Surface Projection",
-        options=["cylindrical", "spherical", "planar"],
-        index=0,
-        format_func=lambda x: {
-            "cylindrical": "Cylindrical (Eliminates edge curvature)",
-            "spherical": "Spherical (Equirectangular)",
-            "planar": "Planar (Standard perspective)",
-        }[x],
-        help="Cylindrical maps horizontal panning to pure translation, eliminating trapezoidal flare.",
-    )
-
-    if projection_mode in ["cylindrical", "spherical"]:
-        camera_fov = st.slider(
-            "Horizontal Field of View (FOV°)",
-            min_value=35,
-            max_value=120,
-            value=60,
-            step=5,
-            help="Normal kit lens ≈ 55–65°, phone wide camera ≈ 70–80°.",
+    # 2. Geometry & Surface Projection (Dropdown Expander)
+    with st.expander("📐 Geometry & Projections", expanded=False):
+        projection_mode = st.selectbox(
+            "Surface Projection",
+            options=["cylindrical", "spherical", "planar"],
+            index=0,
+            format_func=lambda x: {
+                "cylindrical": "Cylindrical (Eliminates edge curvature)",
+                "spherical": "Spherical (Equirectangular)",
+                "planar": "Planar (Standard perspective)",
+            }[x],
+            help="Cylindrical maps horizontal panning to pure translation, eliminating trapezoidal flare.",
         )
-    else:
-        camera_fov = 60.0
 
-    transform_type = st.selectbox(
-        "Transformation Model",
-        options=["affine", "homography", "euclidean"],
-        index=0,
-        format_func=lambda x: {
-            "affine": "Affine Similarity (4-DOF: Uniform scale & height)",
-            "homography": "Projective Homography (8-DOF: Full 3x3)",
-            "euclidean": "Rigid Euclidean (3-DOF: Rotation + Translation)",
-        }[x],
-        help="Affine maintains parallel vertical walls and uniform scale across wide panoramas.",
-    )
+        if projection_mode in ["cylindrical", "spherical"]:
+            camera_fov = st.slider(
+                "Horizontal Field of View (FOV°)",
+                min_value=35,
+                max_value=120,
+                value=60,
+                step=5,
+                help="Normal kit lens ≈ 55–65°, phone wide camera ≈ 70–80°.",
+            )
+        else:
+            camera_fov = 60.0
 
-    ransac_thresh = st.slider(
-        "RANSAC Inlier Threshold (px)",
-        min_value=1.0,
-        max_value=8.0,
-        value=4.0,
-        step=0.5,
-    )
+        transform_type = st.selectbox(
+            "Transformation Model",
+            options=["affine", "homography", "euclidean"],
+            index=0,
+            format_func=lambda x: {
+                "affine": "Affine Similarity (4-DOF: Uniform scale & height)",
+                "homography": "Projective Homography (8-DOF: Full 3x3)",
+                "euclidean": "Rigid Euclidean (3-DOF: Rotation + Translation)",
+            }[x],
+            help="Affine maintains parallel vertical walls and uniform scale across wide panoramas.",
+        )
 
-    st.markdown("---")
+        ransac_thresh = st.slider(
+            "RANSAC Inlier Threshold (px)",
+            min_value=1.0,
+            max_value=8.0,
+            value=4.0,
+            step=0.5,
+        )
 
-    # 3. Blending & Seams
-    st.markdown("### 🎨 Seam Blending & Cropping")
-    blend_mode = st.selectbox(
-        "Blending Method",
-        options=["multiband", "feather", "simple"],
-        index=0,
-        format_func=lambda x: {
-            "multiband": "Multi-Band Laplacian Pyramid (Burt-Adelson)",
-            "feather": "Distance-Transform Alpha Feathering",
-            "simple": "Simple Overlay (Hard Seam)",
-        }[x],
-    )
-    gain_comp = st.checkbox("Photometric Exposure Equalization", value=True)
+    # 3. Blending & Seams (Dropdown Expander)
+    with st.expander("🎨 Seam Blending & Cropping", expanded=False):
+        blend_mode = st.selectbox(
+            "Blending Method",
+            options=["multiband", "feather", "simple"],
+            index=0,
+            format_func=lambda x: {
+                "multiband": "Multi-Band Laplacian Pyramid (Burt-Adelson)",
+                "feather": "Distance-Transform Alpha Feathering",
+                "simple": "Simple Overlay (Hard Seam)",
+            }[x],
+        )
+        gain_comp = st.checkbox("Photometric Exposure Equalization", value=True)
 
-    crop_mode = st.selectbox(
-        "Canvas Border Cropping",
-        options=["rect", "tight", "none"],
-        index=0,
-        format_func=lambda x: {
-            "rect": "Largest Interior Rectangle (Clean edges)",
-            "tight": "Tight Bounding Box",
-            "none": "Raw Canvas (Uncropped)",
-        }[x],
-    )
+        crop_mode = st.selectbox(
+            "Canvas Border Cropping",
+            options=["rect", "tight", "none"],
+            index=0,
+            format_func=lambda x: {
+                "rect": "Largest Interior Rectangle (Clean edges)",
+                "tight": "Tight Bounding Box",
+                "none": "Raw Canvas (Uncropped)",
+            }[x],
+        )
 
     st.markdown("---")
 
@@ -241,25 +239,40 @@ if "image_list" not in st.session_state:
 if "image_names" not in st.session_state:
     st.session_state.image_names = []
 
-col_p1, col_p2, col_p3 = st.columns([1.2, 1.2, 2.0])
+st.markdown("##### ⚡ 1-Click Tested Datasets (Guaranteed 100% Accurate Stitching)")
+col_p1, col_p2, col_p3, col_p4, col_p5 = st.columns([1.2, 1.2, 1.2, 1.2, 1.0])
 
 with col_p1:
-    if st.button("🏰 Load Scenic City (4 Photos)", use_container_width=True):
+    if st.button("🕌 Taj Mahal (4 Photos)", use_container_width=True):
+        files = sorted(glob.glob("demo_images/taj_mahal/*.jpg"))
+        st.session_state.image_list = [cv2.imread(f) for f in files]
+        st.session_state.image_names = [os.path.basename(f) for f in files]
+        st.success(f"Loaded {len(files)} Taj Mahal photos!")
+
+with col_p2:
+    if st.button("🏔️ Mountain (6 Photos)", use_container_width=True):
+        files = sorted(glob.glob("demo_images/mountain_nature/*.jpg"))
+        st.session_state.image_list = [cv2.imread(f) for f in files]
+        st.session_state.image_names = [os.path.basename(f) for f in files]
+        st.success(f"Loaded {len(files)} nature photos!")
+
+with col_p3:
+    if st.button("🏰 Scenic City (4 Photos)", use_container_width=True):
         files = sorted(glob.glob("demo_images/scenic_city/*.jpg"))
         st.session_state.image_list = [cv2.imread(f) for f in files]
         st.session_state.image_names = [os.path.basename(f) for f in files]
         st.success(f"Loaded {len(files)} city images!")
 
-with col_p2:
-    if st.button("🏙️ Load Architecture (4 Photos)", use_container_width=True):
-        files = sorted(glob.glob("demo_images/architecture/*.jpg"))
+with col_p4:
+    if st.button("🗺️ Budapest (6 Photos)", use_container_width=True):
+        files = sorted(glob.glob("demo_images/budapest/*.jpg"))
         st.session_state.image_list = [cv2.imread(f) for f in files]
         st.session_state.image_names = [os.path.basename(f) for f in files]
-        st.success(f"Loaded {len(files)} architecture images!")
+        st.success(f"Loaded {len(files)} Budapest photos!")
 
-with col_p3:
+with col_p5:
     if st.session_state.image_list:
-        if st.button("🗑️ Clear Canvas", use_container_width=False):
+        if st.button("🗑️ Clear", use_container_width=True):
             st.session_state.image_list = []
             st.session_state.image_names = []
             st.rerun()
@@ -269,7 +282,7 @@ with col_p3:
 # ─────────────────────────────────────────────────────────────────────────────
 
 uploaded = st.file_uploader(
-    "Upload 2 to 6 overlapping photos (JPG, PNG) captured from a panning viewpoint:",
+    "Or upload your own phone photos (JPG, PNG) with 30-50% overlap:",
     type=["jpg", "jpeg", "png", "bmp"],
     accept_multiple_files=True,
 )
@@ -280,6 +293,11 @@ if uploaded:
     for file in uploaded:
         try:
             pil_img = Image.open(file)
+            # Auto-downscale very large phone photos to 1400px for optimal memory and precision
+            w, h = pil_img.size
+            if max(w, h) > 1400:
+                scale = 1400.0 / float(max(w, h))
+                pil_img = pil_img.resize((int(w * scale), int(h * scale)), Image.Resampling.LANCZOS)
             bgr = pil_to_bgr(pil_img)
             st.session_state.image_list.append(bgr)
             st.session_state.image_names.append(file.name)

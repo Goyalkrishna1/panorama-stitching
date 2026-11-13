@@ -37,9 +37,9 @@ def parse_arguments():
     )
     parser.add_argument(
         "--detector",
-        choices=["SIFT", "ORB", "AKAZE", "BRISK"],
+        choices=["SIFT", "ORB"],
         default="SIFT",
-        help="Feature detection and description algorithm.",
+        help="Feature detection and description algorithm (SIFT or ORB).",
     )
     parser.add_argument(
         "--transform",

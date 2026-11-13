@@ -28,7 +28,7 @@ An end-to-end, high-accuracy computer vision system for panoramic image stitchin
 ```mermaid
 flowchart TD
     A["Raw Input Photos (Unordered)"] --> B["Cylindrical / Spherical Surface Projection"]
-    B --> C["Feature Extraction (SIFT / ORB / AKAZE)"]
+    B --> C["Feature Extraction (SIFT / ORB)"]
     C --> D["kNN Matching + Lowe's Ratio Test (k=2)"]
     D --> E["RANSAC Inlier Verification & Topology Graph"]
     E --> F["Greedy Sequence Ordering (Left-to-Right)"]
