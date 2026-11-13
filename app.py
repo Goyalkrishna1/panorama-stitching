@@ -24,46 +24,169 @@ from panorama.detector import FeatureDetector
 # ─────────────────────────────────────────────────────────────────────────────
 
 st.set_page_config(
-    page_title="Panorama Studio | Computer Vision Stitcher",
+    page_title="PanoraVision Pro | Computational Panorama Lab",
     page_icon="🌌",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # Custom Styling
 st.markdown(
     """
     <style>
+    /* Hide Default Sidebar */
+    section[data-testid="stSidebar"],
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
+
     .main-header {
-        font-size: 2.2rem;
-        font-weight: 700;
-        background: linear-gradient(90deg, #1E88E5 0%, #7E57C2 100%);
+        font-size: 2.3rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        background: linear-gradient(135deg, #00F2FE 0%, #4FACFE 50%, #00C6FF 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 0.2rem;
     }
     .sub-header {
-        font-size: 1.05rem;
-        color: #78909C;
-        margin-bottom: 1.5rem;
+        font-size: 1.0rem;
+        color: #94A3B8;
+        margin-bottom: 0.8rem;
+    }
+    .telemetry-chip-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 1.2rem;
+    }
+    .telemetry-chip {
+        background: rgba(15, 23, 42, 0.75);
+        border: 1px solid rgba(56, 189, 248, 0.25);
+        color: #38BDF8;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 16px;
+        letter-spacing: 0.3px;
+    }
+    /* Top Control Ribbon: Pure Black Background & Crisp White Separator */
+    .topbar-wrapper {
+        background-color: #000000;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-bottom: 2px solid #FFFFFF;
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 22px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    }
+    .topbar-label {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #38BDF8;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+        margin-bottom: 6px;
+    }
+    .topbar-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.08);
+        color: #E2E8F0;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 6px;
+        padding: 4px 8px;
+        font-size: 0.76rem;
+        font-weight: 600;
+        margin-top: 6px;
     }
     .metric-badge {
-        background-color: rgba(30, 136, 229, 0.08);
-        border: 1px solid rgba(30, 136, 229, 0.2);
-        border-radius: 8px;
-        padding: 10px 14px;
+        background: linear-gradient(180deg, rgba(14, 165, 233, 0.08) 0%, rgba(15, 23, 42, 0.45) 100%);
+        border: 1px solid rgba(56, 189, 248, 0.28);
+        border-radius: 10px;
+        padding: 12px 14px;
         text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
     .metric-val {
-        font-size: 1.4rem;
+        font-size: 1.45rem;
         font-weight: 700;
-        color: #1E88E5;
+        color: #38BDF8;
     }
     .metric-lbl {
-        font-size: 0.8rem;
-        color: #90A4AE;
+        font-size: 0.75rem;
+        color: #94A3B8;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.8px;
+        margin-top: 4px;
+    }
+
+    /* File Uploader Drop Box: Centered, Spacious & High-Tech */
+    [data-testid="stFileUploader"] {
+        text-align: center !important;
+    }
+    [data-testid="stFileUploader"] > label {
+        text-align: center !important;
+        display: block !important;
+        width: 100% !important;
+        font-size: 1.0rem !important;
+        font-weight: 500 !important;
+        margin-bottom: 8px !important;
+    }
+    [data-testid="stFileUploaderDropzone"],
+    [data-testid="stFileUploaderDropzone"] > div,
+    [data-testid="stFileUploaderDropzoneInstructions"],
+    [data-testid="stFileUploaderDropzoneInstructions"] > div,
+    section[data-testid="stFileUploadDropzone"] {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+    [data-testid="stFileUploaderDropzone"] {
+        min-height: 200px !important;
+        padding: 40px 24px !important;
+        border: 2px dashed rgba(56, 189, 248, 0.5) !important;
+        border-radius: 14px !important;
+        background: linear-gradient(180deg, rgba(15, 23, 42, 0.7) 0%, rgba(30, 41, 59, 0.45) 100%) !important;
+        gap: 12px !important;
+        transition: all 0.25s ease-in-out !important;
+    }
+    [data-testid="stFileUploaderDropzone"]:hover {
+        border-color: #38BDF8 !important;
+        background: linear-gradient(180deg, rgba(14, 165, 233, 0.14) 0%, rgba(15, 23, 42, 0.8) 100%) !important;
+        box-shadow: 0 0 25px rgba(56, 189, 248, 0.25) !important;
+    }
+    [data-testid="stFileUploaderDropzone"] span,
+    [data-testid="stFileUploaderDropzone"] small,
+    [data-testid="stFileUploaderDropzone"] p,
+    [data-testid="stFileUploaderDropzone"] div {
+        text-align: center !important;
+        width: 100% !important;
+    }
+    [data-testid="stFileUploaderDropzone"] span {
+        font-size: 1.15rem !important;
+        font-weight: 600 !important;
+        color: #F8FAFC !important;
+    }
+    [data-testid="stFileUploaderDropzone"] small {
+        font-size: 0.9rem !important;
+        color: #94A3B8 !important;
+        margin-top: 2px !important;
+    }
+    [data-testid="stFileUploaderDropzone"] button {
+        margin: 8px auto 0 auto !important;
+        padding: 8px 24px !important;
+        font-size: 0.95rem !important;
+        border-radius: 8px !important;
+    }
+
+    /* Selectbox Dropdown height enhancement */
+    div[data-baseweb="select"] > div {
+        min-height: 42px !important;
+        border-radius: 8px !important;
     }
     </style>
     """,
@@ -104,131 +227,101 @@ def encode_image_bytes(img: np.ndarray, ext: str = ".png") -> bytes:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Sidebar Settings
+# Header Section
 # ─────────────────────────────────────────────────────────────────────────────
 
-with st.sidebar:
-    st.markdown("## ⚙️ Control Center")
-    st.caption("Computer Vision & Algorithm Parameters")
-    st.markdown("---")
+st.markdown('<div class="main-header">PanoraVision Pro • Advanced Stitching Lab</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="sub-header">Computational Multi-Perspective Stitching • Scale-Invariant Keypoints • RANSAC Consensus • Multi-Band Laplacian Synthesis</div>',
+    unsafe_allow_html=True,
+)
+st.markdown(
+    """
+    <div class="telemetry-chip-bar">
+        <span class="telemetry-chip">🔬 SIFT Invariant Detector</span>
+        <span class="telemetry-chip">📐 8-DOF Projective Homography</span>
+        <span class="telemetry-chip">🎯 RANSAC Outlier Rejection</span>
+        <span class="telemetry-chip">🌀 Cylindrical Panning Warper</span>
+        <span class="telemetry-chip">🎨 Laplacian Multi-Band Blender</span>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-    # 1. Feature Detection
-    st.markdown("### 🔍 Feature Detection")
+# ─────────────────────────────────────────────────────────────────────────────
+# Top Control Ribbon (Engine Configuration Bar)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Optimal System Defaults
+max_features = 4500
+ratio_threshold = 0.75
+engine_choice = "custom"
+camera_fov = 60.0
+ransac_thresh = 4.0
+gain_comp = True
+
+st.markdown('<div class="topbar-wrapper">', unsafe_allow_html=True)
+tb1, tb2, tb3 = st.columns([1.1, 1.45, 1.45])
+
+with tb1:
+    st.markdown('<div class="topbar-label">🔍 Feature Extraction</div>', unsafe_allow_html=True)
     detector_algo = st.selectbox(
         "Detector & Descriptor",
         options=["SIFT", "ORB"],
         index=0,
         help="SIFT: Scale/rotation invariant (Unit IV core). ORB: Fast binary descriptor.",
+        label_visibility="collapsed",
     )
-    max_features = st.slider(
-        "Max Keypoints per Image",
-        min_value=500,
-        max_value=8000,
-        value=4000,
-        step=500,
-    )
-    ratio_threshold = st.slider(
-        "Lowe's Ratio Test (d1 / d2)",
-        min_value=0.50,
-        max_value=0.90,
-        value=0.75,
-        step=0.01,
-        help="Rejects ambiguous matches. Lower is stricter (0.70-0.75 is standard).",
+    st.markdown(
+        '<div class="topbar-badge">⚡ <b>4,500 pts</b> • Lowe <b>0.75</b></div>',
+        unsafe_allow_html=True,
     )
 
-    st.markdown("---")
-
-    # 2. Geometry & Surface Projection (Dropdown Expander)
-    with st.expander("📐 Geometry & Projections", expanded=False):
+with tb2:
+    st.markdown('<div class="topbar-label">📐 Surface & Geometry</div>', unsafe_allow_html=True)
+    p_col, t_col = st.columns(2)
+    with p_col:
         projection_mode = st.selectbox(
             "Surface Projection",
             options=["cylindrical", "spherical", "planar"],
             index=0,
-            format_func=lambda x: {
-                "cylindrical": "Cylindrical (Eliminates edge curvature)",
-                "spherical": "Spherical (Equirectangular)",
-                "planar": "Planar (Standard perspective)",
-            }[x],
-            help="Cylindrical maps horizontal panning to pure translation, eliminating trapezoidal flare.",
+            format_func=lambda x: {"cylindrical": "Cylindrical", "spherical": "Spherical", "planar": "Planar"}[x],
+            help="Cylindrical maps horizontal panning to pure translation.",
+            label_visibility="collapsed",
         )
-
-        if projection_mode in ["cylindrical", "spherical"]:
-            camera_fov = st.slider(
-                "Horizontal Field of View (FOV°)",
-                min_value=35,
-                max_value=120,
-                value=60,
-                step=5,
-                help="Normal kit lens ≈ 55–65°, phone wide camera ≈ 70–80°.",
-            )
-        else:
-            camera_fov = 60.0
-
+    with t_col:
         transform_type = st.selectbox(
             "Transformation Model",
             options=["affine", "homography", "euclidean"],
             index=0,
-            format_func=lambda x: {
-                "affine": "Affine Similarity (4-DOF: Uniform scale & height)",
-                "homography": "Projective Homography (8-DOF: Full 3x3)",
-                "euclidean": "Rigid Euclidean (3-DOF: Rotation + Translation)",
-            }[x],
-            help="Affine maintains parallel vertical walls and uniform scale across wide panoramas.",
+            format_func=lambda x: {"affine": "Affine (4-DOF)", "homography": "Homography (8-DOF)", "euclidean": "Euclidean (3-DOF)"}[x],
+            help="Geometric model for inter-image alignment.",
+            label_visibility="collapsed",
         )
 
-        ransac_thresh = st.slider(
-            "RANSAC Inlier Threshold (px)",
-            min_value=1.0,
-            max_value=8.0,
-            value=4.0,
-            step=0.5,
-        )
-
-    # 3. Blending & Seams (Dropdown Expander)
-    with st.expander("🎨 Seam Blending & Cropping", expanded=False):
+with tb3:
+    st.markdown('<div class="topbar-label">🎨 Blending & Crop</div>', unsafe_allow_html=True)
+    b_col, c_col = st.columns(2)
+    with b_col:
         blend_mode = st.selectbox(
             "Blending Method",
             options=["multiband", "feather", "simple"],
             index=0,
-            format_func=lambda x: {
-                "multiband": "Multi-Band Laplacian Pyramid (Burt-Adelson)",
-                "feather": "Distance-Transform Alpha Feathering",
-                "simple": "Simple Overlay (Hard Seam)",
-            }[x],
+            format_func=lambda x: {"multiband": "Multi-Band", "feather": "Feathering", "simple": "Simple"}[x],
+            help="Multi-Band uses Laplacian pyramids to eliminate seams.",
+            label_visibility="collapsed",
         )
-        gain_comp = st.checkbox("Photometric Exposure Equalization", value=True)
-
+    with c_col:
         crop_mode = st.selectbox(
             "Canvas Border Cropping",
             options=["rect", "tight", "none"],
             index=0,
-            format_func=lambda x: {
-                "rect": "Largest Interior Rectangle (Clean edges)",
-                "tight": "Tight Bounding Box",
-                "none": "Raw Canvas (Uncropped)",
-            }[x],
+            format_func=lambda x: {"rect": "Rectangle", "tight": "Tight", "none": "Raw"}[x],
+            help="Removes irregular empty borders.",
+            label_visibility="collapsed",
         )
 
-    st.markdown("---")
-
-    # Engine Selection
-    engine_choice = st.radio(
-        "Backend Engine",
-        options=["custom", "opencv"],
-        format_func=lambda x: "Custom Algorithmic Pipeline" if x == "custom" else "OpenCV cv2.Stitcher Baseline",
-        index=0,
-    )
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Header Section
-# ─────────────────────────────────────────────────────────────────────────────
-
-st.markdown('<div class="main-header">🌌 Panorama Reconstruction Studio</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="sub-header">Multi-image feature matching, RANSAC homography estimation, cylindrical projection, and multi-band Laplacian blending.</div>',
-    unsafe_allow_html=True,
-)
+st.markdown('</div>', unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Session State & Preset Loaders
@@ -240,7 +333,7 @@ if "image_names" not in st.session_state:
     st.session_state.image_names = []
 
 st.markdown("##### ⚡ 1-Click Tested Datasets (Guaranteed 100% Accurate Stitching)")
-col_p1, col_p2, col_p3, col_p4, col_p5 = st.columns([1.2, 1.2, 1.2, 1.2, 1.0])
+col_p1, col_p2, col_p3, col_p4 = st.columns([1.2, 1.2, 1.2, 1.0])
 
 with col_p1:
     if st.button("🕌 Taj Mahal (4 Photos)", use_container_width=True):
@@ -257,20 +350,13 @@ with col_p2:
         st.success(f"Loaded {len(files)} nature photos!")
 
 with col_p3:
-    if st.button("🏰 Scenic City (4 Photos)", use_container_width=True):
-        files = sorted(glob.glob("demo_images/scenic_city/*.jpg"))
-        st.session_state.image_list = [cv2.imread(f) for f in files]
-        st.session_state.image_names = [os.path.basename(f) for f in files]
-        st.success(f"Loaded {len(files)} city images!")
-
-with col_p4:
     if st.button("🗺️ Budapest (6 Photos)", use_container_width=True):
         files = sorted(glob.glob("demo_images/budapest/*.jpg"))
         st.session_state.image_list = [cv2.imread(f) for f in files]
         st.session_state.image_names = [os.path.basename(f) for f in files]
         st.success(f"Loaded {len(files)} Budapest photos!")
 
-with col_p5:
+with col_p4:
     if st.session_state.image_list:
         if st.button("🗑️ Clear", use_container_width=True):
             st.session_state.image_list = []
